@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creates a private ECR repository and an IAM user with access to it
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Description: The name of the ECR repository
+  UserName:
+    Type: String
+    Description: The name of the IAM user
+
+Resources:
+  IAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref UserName
+      Policies:
+        - PolicyName: ECRPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName
+      RepositoryPolicyText: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+              {
+                  "Sid": "AllowPushPull",
+                  "Effect": "Allow",
+                  "Principal": {
+                      "AWS": [ "${IAMUser.Arn}" ]
+                  },
+                  "Action": [
+                      "ecr:BatchGetImage",
+                      "ecr:BatchCheckLayerAvailability",
+                      "ecr:CompleteLayerUpload",
+                      "ecr:GetDownloadUrlForLayer",
+                      "ecr:InitiateLayerUpload",
+                      "ecr:PutImage",
+                      "ecr:UploadLayerPart"
+                  ]
+              }
+          ]
+        }
