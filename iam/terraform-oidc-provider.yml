@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creates a Terraform OIDC provider
+
+Parameters:
+  TerraformOrganization:
+    Type: String
+    Description: The Terraform organization name
+    AllowedPattern: ^[a-zA-Z0-9-]+$
+    ConstraintDescription: Must be a valid Terraform organization name
+  TerraformWorkspace:
+    Type: String
+    Description: The Terraform workspace name
+    AllowedPattern: ^[a-zA-Z0-9-]+$
+    ConstraintDescription: Must be a valid Terraform workspace name
+  TerraformProject:
+    Type: String
+    Description: The Terraform project name
+    AllowedPattern: ^[a-zA-Z0-9-]+$
+    ConstraintDescription: Must be a valid Terraform project name
+
+Resources:
+  TerraformOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: "https://app.terraform.io"
+      ClientIdList:
+        - "aws.workload.identity"
+
+  TerraformCloudRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "TerraformCloudRole"
+      Description: "Role for Terraform Cloud to assume"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AdministratorAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              {
+                "Federated": !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/app.terraform.io",
+              }
+            Action:
+              - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "app.terraform.io:aud": "aws.workload.identity"
+              StringLike:
+                "app.terraform.io:sub": !Sub "organization:${TerraformOrganization}:project:${TerraformProject}:workspace:${TerraformWorkspace}:run_phase:*"
