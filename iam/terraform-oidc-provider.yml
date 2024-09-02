@@ -6,18 +6,12 @@ Parameters:
   TerraformOrganization:
     Type: String
     Description: The Terraform organization name
-    AllowedPattern: ^[a-zA-Z0-9-]+$
-    ConstraintDescription: Must be a valid Terraform organization name
   TerraformWorkspace:
     Type: String
     Description: The Terraform workspace name
-    AllowedPattern: ^[a-zA-Z0-9-]+$
-    ConstraintDescription: Must be a valid Terraform workspace name
   TerraformProject:
     Type: String
     Description: The Terraform project name
-    AllowedPattern: ^[a-zA-Z0-9-]+$
-    ConstraintDescription: Must be a valid Terraform project name
 
 Resources:
   TerraformOIDCProvider:
