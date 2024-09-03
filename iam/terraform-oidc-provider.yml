@@ -24,7 +24,7 @@ Resources:
   TerraformCloudRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: "TerraformCloudRole"
+      RoleName: "TerraformCloudRol"
       Description: "Role for Terraform Cloud to assume"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AdministratorAccess"
